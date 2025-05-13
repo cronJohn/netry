@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/Ullaakut/nmap/v3"
@@ -16,8 +15,8 @@ import (
 var cfgFile string
 
 var (
-	scanTargets  string
-	nmapBehavior string
+	scanTargets string
+	targetInfo  string
 )
 
 var rootCmd = &cobra.Command{
@@ -26,68 +25,19 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("Starting netry")
 		log.Debug().Msgf("Scanning targets: %q", scanTargets)
-		log.Debug().Msgf("Nmap behavior: %q", nmapBehavior)
+		log.Debug().Msgf("Info to find: %q", targetInfo)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
 
-		scanResults := startNmapScan(ctx)
-
-		for _, host := range scanResults.Hosts {
-			log.Info().Msgf("Host ports: %+v", host.Ports)
-			log.Info().Msgf("Address: '%+v'", host.Addresses)
-		}
+		_ = startNmapScan(ctx)
 	},
 }
 
 func startNmapScan(ctx context.Context) *nmap.Run {
-	scanner, err := nmap.NewScanner(
-		ctx,
-		WithCustomNmapBehavior(),
-	)
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to create nmap scanner")
-	}
-
-	log.Debug().Msgf("Nmap args string: %+v", scanner.Args())
-
-	result, warnings, err := scanner.Run()
-	if len(*warnings) > 0 {
-		log.Warn().Msgf("Run finished with warnings: %v", *warnings)
-	}
-	if err != nil {
-		log.Error().Err(err).Msg("Run finished with error")
-	}
-
-	return result
-}
-
-func WithCustomNmapBehavior() nmap.Option {
-	options := make([]nmap.Option, 0, 2)
-
-	switch nmapBehavior {
-	// -- Define scan modes --
-	case "discovery":
-		options = append(options, nmap.WithPingScan())
-	case "full":
-		options = append(options, nmap.WithAggressiveScan())
-	case "os":
-		options = append(options, nmap.WithOSDetection())
-	case "traceroute":
-		options = append(options, nmap.WithTraceRoute())
-
-	// -- otherwise, treat it as a custom nmap arguments string --
-	default:
-		options = append(options, nmap.WithCustomArguments(strings.Fields(nmapBehavior)...))
-	}
-
-	options = append(options, nmap.WithTargets(scanTargets))
-
-	return func(scanner *nmap.Scanner) {
-		for _, option := range options {
-			option(scanner)
-		}
-	}
+	// TODO: Add custom nmap behavior
+	_ = ctx
+	return nil
 }
 
 func Execute() {
@@ -113,15 +63,12 @@ Examples:
   --targets 10.0.0.1-255 (Scans using range notation)
 `)
 	rootCmd.Flags().
-		StringVarP(&nmapBehavior, "nmap", "n", "-sS", `Nmap behavior:
-Can either be a specific mode or a string of custom nmap arguments and flags
+		StringVarP(&targetInfo, "info", "i", "", `Info to find about the targets:
+Contains a comma-separated list of info types to find about the targets.
 
 Examples:
-  --nmap "discover" (Performs a discovery scan, i.e. -sn)
-  --nmap "full" (Performs a full scan, i.e. -A)
-  --nmap "os" (Performs an OS detection scan, i.e. -O)
-  --nmap "traceroute" (Performs a traceroute scan, i.e. --traceroute)
-  --nmap "-sS -p 50-100" (Performs a SYN scan for ports 50-100)
+  --info os,traceroute (Finds OS and traceroute information)
+  --info all (Finds all information)
 `)
 }
 
