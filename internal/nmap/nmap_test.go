@@ -8,7 +8,7 @@ const (
 	searchInfo = "os,version:2,script:default,traceroute"
 )
 
-func BenchmarkParseSearchInfoStruct(b *testing.B) {
+func BenchmarkParseSearchInfo(b *testing.B) {
 	for b.Loop() {
 		_ = ParseSearchInfo(searchInfo)
 	}
