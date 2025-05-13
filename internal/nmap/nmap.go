@@ -6,6 +6,7 @@ import (
 
 func ParseSearchInfo(searchInfo string) string {
 	baseString := strings.Builder{}
+	baseString.Grow(55)
 
 	for _, pair := range strings.Split(searchInfo, ",") {
 		kv := strings.SplitN(pair, ":", 2)
@@ -15,9 +16,9 @@ func ParseSearchInfo(searchInfo string) string {
 		case "tr":
 			baseString.WriteString("--traceroute ")
 		case "v":
-			baseString.WriteString("--version-intensity " + kv[1])
+			baseString.WriteString("--version-intensity " + kv[1] + " ")
 		case "s":
-			baseString.WriteString("--script=" + kv[1])
+			baseString.WriteString("--script=" + kv[1] + " ")
 		}
 	}
 
