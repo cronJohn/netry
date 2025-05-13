@@ -1,6 +1,7 @@
 package nmap
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -10,9 +11,9 @@ const (
 
 func TestParseSearchInfo(t *testing.T) {
 	got := ParseSearchInfo(testSearchInfo)
-	want := "-O --traceroute --version-intensity 2 --script=default "
+	want := []string{"-O", "--traceroute", "--version-intensity", "2", "--script", "default"}
 
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Got %q, Want %q", got, want)
 	}
 }

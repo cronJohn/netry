@@ -1,15 +1,14 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"time"
 
-	"github.com/Ullaakut/nmap/v3"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/cronJohn/netry/internal/nmap"
 )
 
 var cfgFile string
@@ -27,17 +26,8 @@ var rootCmd = &cobra.Command{
 		log.Debug().Msgf("Scanning targets: %q", scanTargets)
 		log.Debug().Msgf("Info to find: %q", targetInfo)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-		defer cancel()
-
-		_ = startNmapScan(ctx)
+		nmap.StartNmapScan(targetInfo, scanTargets)
 	},
-}
-
-func startNmapScan(ctx context.Context) *nmap.Run {
-	// TODO: Add custom nmap behavior
-	_ = ctx
-	return nil
 }
 
 func Execute() {
@@ -67,8 +57,8 @@ Examples:
 Contains a comma-separated list of info types to find about the targets.
 
 Examples:
-  --info os,traceroute (Finds OS and traceroute information)
-  --info all (Finds all information)
+  --info os,tr (Finds OS and traceroute information)
+  --info s:default (Finds nmap default script information)
 `)
 }
 
