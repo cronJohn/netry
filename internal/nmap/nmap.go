@@ -81,12 +81,5 @@ func StartNmapScan(searchInfo string, targets string) {
 		}
 	}
 
-	for _, host := range hosts {
-		log.Info().Msgf("Host: %+v", host.Addresses)
-		for _, port := range host.Ports {
-			log.Info().Msgf("Port: %d, State: %s", port.PortId, port.State.State)
-		}
-	}
-
 	log.Debug().Msg("Finished nmap scan")
 }
